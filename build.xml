@@ -34,7 +34,7 @@
  <property name="maven-jar" value="${release.dir}/${artifactId}-${version}.jar" />
  <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
  <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
-
+ <property name="plugin-groupId" value="org.apache.nutch.plugins" />
 
  <!-- the normal classpath -->
  <path id="classpath">
@@ -89,15 +89,15 @@
  <target name="compile" depends="compile-core, compile-plugins" description="--> compile all Java files"/>
 
  <target name="compile-core" depends="init, resolve-default" description="--> compile core Java files only">
-  <javac 
-  	encoding="${build.encoding}" 
+  <javac
+  	encoding="${build.encoding}"
   	srcdir="${src.dir}"
-    includes="org/apache/nutch/**/*.java" 
+    includes="org/apache/nutch/**/*.java"
   	destdir="${build.classes}"
-    debug="${javac.debug}" 
-  	optimize="${javac.optimize}" 
+    debug="${javac.debug}"
+  	optimize="${javac.optimize}"
   	target="${javac.version}"
-    source="${javac.version}" 
+    source="${javac.version}"
   	deprecation="${javac.deprecation}">
    <compilerarg value="-Xlint:-path"/>
    <classpath refid="classpath" />
@@ -143,21 +143,21 @@
   <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
     <condition>
       <or>
-        <matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" /> 
-        <matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" /> 
+        <matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" />
+        <matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" />
         <equals arg1="${ant.java.version}" arg2="1.6" />
-        <equals arg1="${ant.java.version}" arg2="1.5" /> 
+        <equals arg1="${ant.java.version}" arg2="1.5" />
       </or>
     </condition>
   </fail>
 
   <!-- build the javadoc artifact -->
-  <javadoc 
-  	destdir="${release.dir}/javadoc" 
+  <javadoc
+  	destdir="${release.dir}/javadoc"
   	overview="${src.dir}/overview.html"
-    author="true" 
-  	version="true" 
-  	use="true" 
+    author="true"
+  	version="true"
+  	use="true"
   	windowtitle="${name} ${version} API"
     doctitle="${name} ${version} API"
     bottom="Copyright &amp;copy; ${year} The Apache Software Foundation">
@@ -292,15 +292,15 @@
  <!-- ================================================================== -->
  <target name="job" depends="compile" description="--> make nutch.job jar">
   <jar jarfile="${build.dir}/${final.name}.job">
-   <!-- 
-   If the build.classes has the nutch config files because the jar command 
-   command has run, exclude them. The conf directory has them. 
+   <!--
+   If the build.classes has the nutch config files because the jar command
+   command has run, exclude them. The conf directory has them.
    -->
    <zipfileset dir="${build.classes}" excludes="nutch-default.xml,nutch-site.xml" />
    <zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*" />
-   <!-- 
-   need to exclude hsqldb.jar due to a conflicting version already present 
-   in Hadoop/lib. 
+   <!--
+   need to exclude hsqldb.jar due to a conflicting version already present
+   in Hadoop/lib.
    -->
    <zipfileset dir="${build.lib.dir}" prefix="lib" includes="**/*.jar"
     excludes="jasper*.jar,jsp-*.jar,hadoop-*.jar,hbase*test*.jar,ant*jar,hsqldb*.jar,slf4j*.jar,log4j*.jar" />
@@ -345,20 +345,295 @@
    <fileset dir="${build.dir}/test" />
   </copy>
  </target>
+ <target name="zip-plugins" depends="runtime">
+   <!-- Create pom.xml files for plugins -->
+   <xslt in="${build.dir}/plugins/creativecommons/plugin.xml" out="${build.dir}/plugins/creativecommons.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="creativecommons" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/index-anchor/plugin.xml" out="${build.dir}/plugins/index-anchor.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="index-anchor" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/index-basic/plugin.xml" out="${build.dir}/plugins/index-basic.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="index-basic" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/index-html/plugin.xml" out="${build.dir}/plugins/index-html.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="index-html" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/index-metadata/plugin.xml" out="${build.dir}/plugins/index-metadata.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="index-metadata" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/index-more/plugin.xml" out="${build.dir}/plugins/index-more.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="index-more" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/indexer-elastic/plugin.xml" out="${build.dir}/plugins/indexer-elastic.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="indexer-elastic" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/indexer-solr/plugin.xml" out="${build.dir}/plugins/indexer-solr.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="indexer-solr" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/language-identifier/plugin.xml" out="${build.dir}/plugins/language-identifier.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="language-identifier" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/lib-http/plugin.xml" out="${build.dir}/plugins/lib-http.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="lib-http" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/lib-regex-filter/plugin.xml" out="${build.dir}/plugins/lib-regex-filter.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="lib-regex-filter" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/microformats-reltag/plugin.xml" out="${build.dir}/plugins/microformats-reltag.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="microformats-reltag" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/parse-html/plugin.xml" out="${build.dir}/plugins/parse-html.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="parse-html" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/parse-metatags/plugin.xml" out="${build.dir}/plugins/parse-metatags.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="parse-metatags" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/parse-js/plugin.xml" out="${build.dir}/plugins/parse-js.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="parse-js" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/parse-tika/plugin.xml" out="${build.dir}/plugins/parse-tika.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="parse-tika" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/protocol-file/plugin.xml" out="${build.dir}/plugins/protocol-file.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="protocol-file" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/protocol-ftp/plugin.xml" out="${build.dir}/plugins/protocol-ftp.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="protocol-ftp" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/protocol-http/plugin.xml" out="${build.dir}/plugins/protocol-http.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="protocol-http" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/protocol-httpclient/plugin.xml" out="${build.dir}/plugins/protocol-httpclient.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="protocol-httpclient" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/protocol-sftp/plugin.xml" out="${build.dir}/plugins/protocol-sftp.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="protocol-sftp" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/scoring-link/plugin.xml" out="${build.dir}/plugins/scoring-link.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="scoring-link" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/scoring-opic/plugin.xml" out="${build.dir}/plugins/scoring-opic.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="scoring-opic" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/subcollection/plugin.xml" out="${build.dir}/plugins/subcollection.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="subcollection" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/tld/plugin.xml" out="${build.dir}/plugins/tld.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="tld" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/urlfilter-automaton/plugin.xml" out="${build.dir}/plugins/urlfilter-automaton.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="urlfilter-automaton" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/urlfilter-domain/plugin.xml" out="${build.dir}/plugins/urlfilter-domain.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="urlfilter-domain" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/urlfilter-prefix/plugin.xml" out="${build.dir}/plugins/urlfilter-prefix.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="urlfilter-prefix" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/urlfilter-regex/plugin.xml" out="${build.dir}/plugins/urlfilter-regex.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="urlfilter-regex" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/urlfilter-suffix/plugin.xml" out="${build.dir}/plugins/urlfilter-suffix.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="urlfilter-suffix" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/urlfilter-validator/plugin.xml" out="${build.dir}/plugins/urlfilter-validator.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="urlfilter-validator" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/urlnormalizer-basic/plugin.xml" out="${build.dir}/plugins/urlnormalizer-basic.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="urlnormalizer-basic" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/urlnormalizer-pass/plugin.xml" out="${build.dir}/plugins/urlnormalizer-pass.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="urlnormalizer-pass" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <xslt in="${build.dir}/plugins/urlnormalizer-regex/plugin.xml" out="${build.dir}/plugins/urlnormalizer-regex.xml" style="src/makepom.xsl">
+   <param name="artifact_id" expression="urlnormalizer-regex" type="STRING"/>
+   <param name="version" expression="${version}" type="STRING"/>
+   </xslt>
+   <jar jarfile="${build.dir}/plugins/creativecommons.jar">
+   <zipfileset dir="${build.dir}/plugins/creativecommons" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/creativecommons"><include name="creativecommons.xml"/></zipfileset><globmapper from="creativecommons.*" to="META-INF/maven/${plugin-groupId}/creativecommons/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/index-anchor.jar">
+   <zipfileset dir="${build.dir}/plugins/index-anchor" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/index-anchor"><include name="index-anchor.xml"/></zipfileset><globmapper from="index-anchor.*" to="META-INF/maven/${plugin-groupId}/index-anchor/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/index-basic.jar">
+   <zipfileset dir="${build.dir}/plugins/index-basic" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/index-basic"><include name="index-basic.xml"/></zipfileset><globmapper from="index-basic.*" to="META-INF/maven/${plugin-groupId}/index-basic/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/index-html.jar">
+   <zipfileset dir="${build.dir}/plugins/index-html" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/index-html"><include name="index-html.xml"/></zipfileset><globmapper from="index-html.*" to="META-INF/maven/${plugin-groupId}/index-html/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/index-metadata.jar">
+   <zipfileset dir="${build.dir}/plugins/index-metadata" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/index-metadata"><include name="index-metadata.xml"/></zipfileset><globmapper from="index-metadata.*" to="META-INF/maven/${plugin-groupId}/index-metadata/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/index-more.jar">
+   <zipfileset dir="${build.dir}/plugins/index-more" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/index-more"><include name="index-more.xml"/></zipfileset><globmapper from="index-more.*" to="META-INF/maven/${plugin-groupId}/index-more/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/indexer-elastic.jar">
+   <zipfileset dir="${build.dir}/plugins/indexer-elastic" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/indexer-elastic"><include name="indexer-elastic.xml"/></zipfileset><globmapper from="indexer-elastic.*" to="META-INF/maven/${plugin-groupId}/indexer-elastic/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/indexer-solr.jar">
+   <zipfileset dir="${build.dir}/plugins/indexer-solr" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/indexer-solr"><include name="indexer-solr.xml"/></zipfileset><globmapper from="indexer-solr.*" to="META-INF/maven/${plugin-groupId}/indexer-solr/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/language-identifier.jar">
+   <zipfileset dir="${build.dir}/plugins/language-identifier" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/language-identifier"><include name="language-identifier.xml"/></zipfileset><globmapper from="language-identifier.*" to="META-INF/maven/${plugin-groupId}/language-identifier/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/lib-http.jar">
+   <zipfileset dir="${build.dir}/plugins/lib-http" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/lib-http"><include name="lib-http.xml"/></zipfileset><globmapper from="lib-http.*" to="META-INF/maven/${plugin-groupId}/lib-http/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/lib-regex-filter.jar">
+   <zipfileset dir="${build.dir}/plugins/lib-regex-filter" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/lib-regex-filter"><include name="lib-regex-filter.xml"/></zipfileset><globmapper from="lib-regex-filter.*" to="META-INF/maven/${plugin-groupId}/lib-regex-filter/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/microformats-reltag.jar">
+   <zipfileset dir="${build.dir}/plugins/microformats-reltag" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/microformats-reltag"><include name="microformats-reltag.xml"/></zipfileset><globmapper from="microformats-reltag.*" to="META-INF/maven/${plugin-groupId}/microformats-reltag/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/parse-html.jar">
+   <zipfileset dir="${build.dir}/plugins/parse-html" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/parse-html"><include name="parse-html.xml"/></zipfileset><globmapper from="parse-html.*" to="META-INF/maven/${plugin-groupId}/parse-html/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/parse-metatags.jar">
+   <zipfileset dir="${build.dir}/plugins/parse-metatags" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/parse-metatags"><include name="parse-metatags.xml"/></zipfileset><globmapper from="parse-metatags.*" to="META-INF/maven/${plugin-groupId}/parse-metatags/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/parse-js.jar">
+   <zipfileset dir="${build.dir}/plugins/parse-js" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/parse-js"><include name="parse-js.xml"/></zipfileset><globmapper from="parse-js.*" to="META-INF/maven/${plugin-groupId}/parse-js/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/parse-tika.jar">
+   <zipfileset dir="${build.dir}/plugins/parse-tika" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/parse-tika"><include name="parse-tika.xml"/></zipfileset><globmapper from="parse-tika.*" to="META-INF/maven/${plugin-groupId}/parse-tika/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/protocol-file.jar">
+   <zipfileset dir="${build.dir}/plugins/protocol-file" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/protocol-file"><include name="protocol-file.xml"/></zipfileset><globmapper from="protocol-file.*" to="META-INF/maven/${plugin-groupId}/protocol-file/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/protocol-ftp.jar">
+   <zipfileset dir="${build.dir}/plugins/protocol-ftp" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/protocol-ftp"><include name="protocol-ftp.xml"/></zipfileset><globmapper from="protocol-ftp.*" to="META-INF/maven/${plugin-groupId}/protocol-ftp/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/protocol-http.jar">
+   <zipfileset dir="${build.dir}/plugins/protocol-http" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/protocol-http"><include name="protocol-http.xml"/></zipfileset><globmapper from="protocol-http.*" to="META-INF/maven/${plugin-groupId}/protocol-http/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/protocol-httpclient.jar">
+   <zipfileset dir="${build.dir}/plugins/protocol-httpclient" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/protocol-httpclient"><include name="protocol-httpclient.xml"/></zipfileset><globmapper from="protocol-httpclient.*" to="META-INF/maven/${plugin-groupId}/protocol-httpclient/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/protocol-sftp.jar">
+   <zipfileset dir="${build.dir}/plugins/protocol-sftp" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/protocol-sftp"><include name="protocol-sftp.xml"/></zipfileset><globmapper from="protocol-sftp.*" to="META-INF/maven/${plugin-groupId}/protocol-sftp/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/scoring-link.jar">
+   <zipfileset dir="${build.dir}/plugins/scoring-link" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/scoring-link"><include name="scoring-link.xml"/></zipfileset><globmapper from="scoring-link.*" to="META-INF/maven/${plugin-groupId}/scoring-link/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/scoring-opic.jar">
+   <zipfileset dir="${build.dir}/plugins/scoring-opic" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/scoring-opic"><include name="scoring-opic.xml"/></zipfileset><globmapper from="scoring-opic.*" to="META-INF/maven/${plugin-groupId}/scoring-opic/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/subcollection.jar">
+   <zipfileset dir="${build.dir}/plugins/subcollection" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/subcollection"><include name="subcollection.xml"/></zipfileset><globmapper from="subcollection.*" to="META-INF/maven/${plugin-groupId}/subcollection/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/tld.jar">
+   <zipfileset dir="${build.dir}/plugins/tld" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/tld"><include name="tld.xml"/></zipfileset><globmapper from="tld.*" to="META-INF/maven/${plugin-groupId}/tld/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/urlfilter-automaton.jar">
+   <zipfileset dir="${build.dir}/plugins/urlfilter-automaton" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/urlfilter-automaton"><include name="urlfilter-automaton.xml"/></zipfileset><globmapper from="urlfilter-automaton.*" to="META-INF/maven/${plugin-groupId}/urlfilter-automaton/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/urlfilter-domain.jar">
+   <zipfileset dir="${build.dir}/plugins/urlfilter-domain" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/urlfilter-domain"><include name="urlfilter-domain.xml"/></zipfileset><globmapper from="urlfilter-domain.*" to="META-INF/maven/${plugin-groupId}/urlfilter-domain/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/urlfilter-prefix.jar">
+   <zipfileset dir="${build.dir}/plugins/urlfilter-prefix" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/urlfilter-prefix"><include name="urlfilter-prefix.xml"/></zipfileset><globmapper from="urlfilter-prefix.*" to="META-INF/maven/${plugin-groupId}/urlfilter-prefix/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/urlfilter-regex.jar">
+   <zipfileset dir="${build.dir}/plugins/urlfilter-regex" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/urlfilter-regex"><include name="urlfilter-regex.xml"/></zipfileset><globmapper from="urlfilter-regex.*" to="META-INF/maven/${plugin-groupId}/urlfilter-regex/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/urlfilter-suffix.jar">
+   <zipfileset dir="${build.dir}/plugins/urlfilter-suffix" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/urlfilter-suffix"><include name="urlfilter-suffix.xml"/></zipfileset><globmapper from="urlfilter-suffix.*" to="META-INF/maven/${plugin-groupId}/urlfilter-suffix/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/urlfilter-validator.jar">
+   <zipfileset dir="${build.dir}/plugins/urlfilter-validator" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/urlfilter-validator"><include name="urlfilter-validator.xml"/></zipfileset><globmapper from="urlfilter-validator.*" to="META-INF/maven/${plugin-groupId}/urlfilter-validator/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/urlnormalizer-basic.jar">
+   <zipfileset dir="${build.dir}/plugins/urlnormalizer-basic" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/urlnormalizer-basic"><include name="urlnormalizer-basic.xml"/></zipfileset><globmapper from="urlnormalizer-basic.*" to="META-INF/maven/${plugin-groupId}/urlnormalizer-basic/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/urlnormalizer-pass.jar">
+   <zipfileset dir="${build.dir}/plugins/urlnormalizer-pass" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/urlnormalizer-pass"><include name="urlnormalizer-pass.xml"/></zipfileset><globmapper from="urlnormalizer-pass.*" to="META-INF/maven/${plugin-groupId}/urlnormalizer-pass/pom.*"/></mappedresources>
+   </jar>
+   <jar jarfile="${build.dir}/plugins/urlnormalizer-regex.jar">
+   <zipfileset dir="${build.dir}/plugins/urlnormalizer-regex" prefix="plugins"/>
+   <mappedresources><zipfileset dir="${build.dir}/plugins" prefix="META-INF/maven/${plugin-groupId}/urlnormalizer-regex"><include name="urlnormalizer-regex.xml"/></zipfileset><globmapper from="urlnormalizer-regex.*" to="META-INF/maven/${plugin-groupId}/urlnormalizer-regex/pom.*"/></mappedresources>
+   </jar>
+ </target>
 
  <!-- ================================================================== -->
  <!-- Compile test code -->
  <!-- ================================================================== -->
  <target name="compile-core-test" depends="compile-core, resolve-test" description="--> compile test code">
-  <javac 
-  	encoding="${build.encoding}" 
+  <javac
+  	encoding="${build.encoding}"
   	srcdir="${test.src.dir}"
-    includes="org/apache/nutch*/**/*.java" 
+    includes="org/apache/nutch*/**/*.java"
   	destdir="${test.build.classes}"
-    debug="${javac.debug}" 
-  	optimize="${javac.optimize}" 
+    debug="${javac.debug}"
+  	optimize="${javac.optimize}"
   	target="${javac.version}"
-    source="${javac.version}" 
+    source="${javac.version}"
   	deprecation="${javac.deprecation}">
    <compilerarg value="-Xlint:-path"/>
    <classpath refid="test.classpath" />
@@ -373,9 +648,9 @@
   <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
    <classpath refid="test.classpath" />
    <arg value="-fake" />
-   <!-- 
-   <arg value="-delay"/> 
-   <arg value="-200"/> 
+   <!--
+   <arg value="-delay"/>
+   <arg value="-200"/>
    -->
    <jvmarg line="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl" />
   </java>
@@ -408,24 +683,24 @@
 
   <delete dir="${test.build.data}" />
   <mkdir dir="${test.build.data}" />
-  <!-- 
-  copy resources needed in junit tests 
+  <!--
+  copy resources needed in junit tests
   -->
   <copy todir="${test.build.data}">
    <fileset dir="src/testresources" includes="**/*" />
   </copy>
-  <copy file="${test.src.dir}/nutch-site.xml" 
+  <copy file="${test.src.dir}/nutch-site.xml"
   	todir="${test.build.classes}" />
 
-  <copy file="${test.src.dir}/log4j.properties" 
+  <copy file="${test.src.dir}/log4j.properties"
   	todir="${test.build.classes}" />
-  	
-  <copy file="${test.src.dir}/gora.properties" 
+
+  <copy file="${test.src.dir}/gora.properties"
   	todir="${test.build.classes}" />
 
   <copy file="${test.src.dir}/crawl-tests.xml"
         todir="${test.build.classes}"/>
-        
+
   <copy file="${test.src.dir}/domain-urlfilter.txt"
         todir="${test.build.classes}"/>
 
@@ -440,7 +715,7 @@
    <classpath refid="test.classpath" />
    <formatter type="${test.junit.output.format}" />
    <batchtest todir="${test.build.dir}" unless="testcase">
-    <fileset dir="${test.src.dir}" 
+    <fileset dir="${test.src.dir}"
     	includes="**/Test*.java" excludes="**/${test.exclude}.java" />
    </batchtest>
    <batchtest todir="${test.build.dir}" if="testcase">
@@ -486,9 +761,9 @@
  <!-- target: publish-local =========================================== -->
  <target name="publish-local" depends="jar" description="--> publish this project in the local ivy repository">
   <ivy:publish artifactspattern="${build.dir}/[artifact]-${version}.[ext]"
-    resolver="local" 
-  	pubrevision="${version}" 
-  	pubdate="${now}" 
+    resolver="local"
+  	pubrevision="${version}"
+  	pubdate="${now}"
   	status="integration"
     forcedeliver="true" overwrite="true" />
   <echo message="project ${ant.project.name} published locally with version ${version}" />
@@ -540,19 +815,19 @@
    It could not be loaded from ${ivy.repo.url}
   </fail>
  </target>
-	
+
   <target name="compile-avro-schema" depends="resolve-default" description="--> compile the avro schema(s) in src/gora/*.avsc">
-    <typedef name="schema" 
+    <typedef name="schema"
   	         classname="org.apache.avro.specific.SchemaTask"
   	         classpathref="classpath" />
-    
+
   	<mkdir dir="${build.gora}" />
   	<schema destdir="${build.gora}">
   	  <fileset dir="./src/gora">
   	    <include name="**/*.avsc"/>
   	  </fileset>
   	</schema>
-  	
+
 	</target>
 
    <!-- ====================================================== -->
@@ -575,20 +850,20 @@
    <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
       <condition>
           <or>
-        	<matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" /> 
-			<matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" /> 
+        	<matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" />
+			<matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" />
             <equals arg1="${ant.java.version}" arg2="1.6" />
-			<equals arg1="${ant.java.version}" arg2="1.5" /> 
+			<equals arg1="${ant.java.version}" arg2="1.5" />
           </or>
       </condition>
    </fail>
   <mkdir dir="${build.javadoc}" />
-  <javadoc 
-  	overview="${src.dir}/overview.html" 
+  <javadoc
+  	overview="${src.dir}/overview.html"
   	destdir="${build.javadoc}"
-    author="true" 
-  	version="true" 
-  	use="true" 
+    author="true"
+  	version="true"
+  	use="true"
   	windowtitle="${name} ${version} API"
     doctitle="${name} ${version} API"
     bottom="Copyright &amp;copy; ${year} The Apache Software Foundation">
@@ -663,7 +938,7 @@
  </target>
 
  <target name="default-doc" description="--> generate default Nutch documentation">
-  <style basedir="${conf.dir}" destdir="${docs.dir}" 
+  <style basedir="${conf.dir}" destdir="${docs.dir}"
   	includes="nutch-default.xml" style="conf/nutch-conf.xsl" />
  </target>
 
@@ -725,7 +1000,7 @@
     <copy todir="${bin.dist.version.dir}/lib" includeEmptyDirs="false">
       <fileset dir="runtime/local/lib"/>
     </copy>
-   
+
     <copy todir="${bin.dist.version.dir}/bin">
       <fileset dir="runtime/local/bin"/>
     </copy>
@@ -769,7 +1044,7 @@
       </tarfileset>
     </tar>
   </target>
-  
+
   <!-- ================================================================== -->
   <!-- Make bin release tarball                                               -->
   <!-- ================================================================== -->
@@ -790,7 +1065,7 @@
   <!-- Make src release zip                                               -->
   <!-- ================================================================== -->
   <target name="zip-src" depends="package-src" description="--> generate src.zip distribution package">
-   <zip compress="true" casesensitive="yes" 
+   <zip compress="true" casesensitive="yes"
      destfile="${src.dist.version.dir}.zip">
    <zipfileset dir="${src.dist.version.dir}" filemode="664" prefix="${final.name}">
        <exclude name="src/bin/*" />
@@ -806,7 +1081,7 @@
   <!-- Make bin release zip                                               -->
   <!-- ================================================================== -->
   <target name="zip-bin" depends="package-bin" description="--> generate bin.zip distribution package">
-   <zip compress="true" casesensitive="yes" 
+   <zip compress="true" casesensitive="yes"
      destfile="${bin.dist.version.dir}.zip">
    <zipfileset dir="${bin.dist.version.dir}" filemode="664" prefix="${final.name}">
        <exclude name="bin/*" />
@@ -826,7 +1101,7 @@
  <target name="clean" depends="clean-build, clean-lib, clean-dist, clean-runtime" description="--> clean the project" />
 
   <!-- target: clean-eclipse ============================================ -->
-  <target name="clean-eclipse" depends="clean-build, clean-lib, clean-dist" description="--> cleans the eclipse project"/> 
+  <target name="clean-eclipse" depends="clean-build, clean-lib, clean-dist" description="--> cleans the eclipse project"/>
 
  <!-- target: clean-local ============================================= -->
  <target name="clean-local" depends="" description="--> cleans the local repository for the current module">
@@ -903,7 +1178,7 @@
   <sonar:sonar workDir="${base.dir}" key="org.apache.nutch:branch"
    version="2.0-SNAPSHOT" xmlns:sonar="antlib:org.sonar.ant" />
  </target>
- 
+
   <!-- ================================================================== -->
   <!-- Eclipse targets                                                    -->
   <!-- ================================================================== -->
@@ -914,12 +1189,12 @@
       <include name="*.jar" />
       <exclude name="ant-eclipse-1.0-jvm1.2.jar" />
     </fileset>
-  	
+
   	<fileset dir="${build.plugins}" >
   	 	<include name="**/*.jar"/>
   	 </fileset>
   </path>
-  
+
   <!-- target: ant-eclipse-download   =================================== -->
   <target name="ant-eclipse-download" description="--> Downloads the ant-eclipse binary.">
     <get src="http://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
@@ -934,9 +1209,9 @@
 
     <delete file="${build.dir}/ant-eclipse-1.0.bin.tar.bz2" />
   </target>
-  
+
   <!-- target: eclipse   ================================================ -->
-  <target name="eclipse" 
+  <target name="eclipse"
           depends="clean-eclipse,init,resolve-test,job,ant-eclipse-download"
           description="--> Create eclipse project files">
 
@@ -944,23 +1219,23 @@
            <path path="${basedir}"/>
            <regexpmapper from="^.*/([^/]+)$$" to="\1" handledirsep="yes"/>
          </pathconvert>
-  
+
     <taskdef name="eclipse"
              classname="prantl.ant.eclipse.EclipseTask"
              classpath="${build.dir}/lib/ant-eclipse-1.0-jvm1.2.jar" />
     <eclipse updatealways="true">
       <project name="${eclipse.project}" />
       <classpath>
-        
+
         <library path="${conf.dir}" exported="false" />
         <library path="${basedir}/src/bin" exported="false" />
         <library pathref="eclipse.classpath" exported="false" />
-       
+
         <source path="${basedir}/src/java/" />
         <source path="${basedir}/src/test/" output="build/test/classes" />
         <source path="${basedir}/src/plugin/creativecommons/src/java/" />
         <source path="${basedir}/src/plugin/creativecommons/src/test/" />
-        <!-- feed is currently disabled 
+        <!-- feed is currently disabled
         <source path="${basedir}/src/plugin/feed/src/java/" />
         <source path="${basedir}/src/plugin/feed/src/test/" /> -->
         <source path="${basedir}/src/plugin/indexer-solr/src/java/" />
@@ -981,7 +1256,7 @@
         <source path="${basedir}/src/plugin/lib-regex-filter/src/test/" />
         <source path="${basedir}/src/plugin/microformats-reltag/src/java/" />
         <source path="${basedir}/src/plugin/microformats-reltag/src/test/" />
-        <!-- parse-ext is currently disabled 
+        <!-- parse-ext is currently disabled
         <source path="${basedir}/src/plugin/parse-ext/src/java/" />
         <source path="${basedir}/src/plugin/parse-ext/src/test/" /> -->
         <source path="${basedir}/src/plugin/parse-html/src/java/" />
@@ -990,7 +1265,7 @@
         <source path="${basedir}/src/plugin/parse-js/src/test/" />
         <source path="${basedir}/src/plugin/parse-metatags/src/java/" />
         <source path="${basedir}/src/plugin/parse-metatags/src/test/" />
-        <!-- parse-swf and parse-zip are currently disabled 
+        <!-- parse-swf and parse-zip are currently disabled
         <source path="${basedir}/src/plugin/parse-swf/src/java/" />
         <source path="${basedir}/src/plugin/parse-swf/src/test/" />
         <source path="${basedir}/src/plugin/parse-zip/src/java/" />
